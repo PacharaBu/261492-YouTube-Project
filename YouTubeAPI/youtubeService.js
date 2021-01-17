@@ -103,24 +103,21 @@ const checkTokens = async () => {
     console.log('no tokens set');
   }
 };
-let a = [];
+//let a = [];
 const respond = newMessages => {
+  let a = [];
   newMessages.forEach(message => {
     const messageText = message.snippet.displayMessage.toLowerCase();
     console.log(messageText);
-    //fs.writeFileSync(path.resolve(__dirname, 'message.json'), JSON.stringify(messageText));
-    //console.log(a);
     const author = message.authorDetails.displayName;
-    //a.push(messageText);
     //const response = `You're welcome ${author}!`;
     //youtubeService.insertMessage(response);
-    //a.push("user", JSON.parse(author),"message", JSON.stringify(messageText));
-    a.push({"user": JSON.stringify(author),"message": JSON.stringify(messageText)});
-    //save('./user.json', JSON.stringify((author)));
+    if(!a.length)
+    a.push({"user": JSON.stringify(author), "message": JSON.stringify(messageText), "attempt": 0});
+    save('./message.json', JSON.stringify(a));
   });
-  save('./message.json', JSON.stringify(a));
+  console.log(a);
 };
-console.log(a);
 const getChatMessages = async () => {
   const response = await youtube.liveChatMessages.list({
     auth,
@@ -134,6 +131,7 @@ const getChatMessages = async () => {
   nextPage = data.nextPageToken;
   console.log('Total Chat Messages:', chatMessages.length);
   respond(newMessages);
+  //console.log(newMessages);
 };
 
 youtubeService.startTrackingChat = () => {
