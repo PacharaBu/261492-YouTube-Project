@@ -110,14 +110,20 @@ const respond = newMessages => {
     const messageText = message.snippet.displayMessage.toLowerCase();
     console.log(messageText);
     const author = message.authorDetails.displayName;
-    //const response = `You're welcome ${author}!`;
-    //youtubeService.insertMessage(response);
+    const authorID = message.authorDetails.channelId;
+    if(messageText.includes('fcuk')){
+      const response = `Not good ${author}!`;
+      youtubeService.insertMessage(response);
+      youtubeService.banUser(authorID);
+      //youtubeService.banUser(response);
+    }
+    
     if(!a.length){
-    a.push({"user": author, "message": messageText, "attempt": "0"});
+    a.push({"user": author, "userID": authorID, "message": messageText, "attempt": "0"});
     save('./message.json', JSON.stringify(a));
     }
     console.log(JSON.stringify(messageText));
-    b.push({"user": author, "message": messageText, "attempt": "0"});
+    b.push({"user": author, "userID": authorID, "message": messageText, "attempt": "0"});
   });
   console.log(a);
   save('./all_message.json', JSON.stringify(b));
@@ -165,6 +171,34 @@ youtubeService.insertMessage = messageText => {
   );
 };
 
+/*youtubeService.deleteMessage = () => {
+  youtube.liveChatMessages.delete(
+    {
+     id
+    },
+    () => {}
+  );
+};*/
+
+youtubeService.banUser = channelId => {
+  youtube.liveChatBans.insert(
+    {
+      auth,
+      part: 'snippet',
+      resource: {
+        snippet: {
+          liveChatId,
+          type: 'temporary',
+          banDurationSeconds: 30,
+          bannedUserDetails: {
+            channelId
+          }
+        }
+      }
+    },
+    () => {}
+  );
+};
 checkTokens();
 
 // As we progress throug this turtorial, Keep the following line at the nery bottom of the file
