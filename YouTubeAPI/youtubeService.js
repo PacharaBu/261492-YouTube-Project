@@ -112,12 +112,11 @@ const respond = newMessages => {
     const author = message.authorDetails.displayName;
     const authorID = message.authorDetails.channelId;
     if(messageText.includes('fcuk')){
-      const response = `Not good ${author}!`;
-      youtubeService.insertMessage(response);
+      //const response = `Not good ${author}!`;
+      //youtubeService.insertMessage(response);
       youtubeService.banUser(authorID);
       //youtubeService.banUser(response);
     }
-    
     if(!a.length){
     a.push({"user": author, "userID": authorID, "message": messageText, "attempt": "0"});
     save('./message.json', JSON.stringify(a));
@@ -189,6 +188,26 @@ youtubeService.banUser = channelId => {
         snippet: {
           liveChatId,
           type: 'temporary',
+          banDurationSeconds: 30,
+          bannedUserDetails: {
+            channelId
+          }
+        }
+      }
+    },
+    () => {}
+  );
+};
+
+youtubeService.banPermanentUser = channelId => {
+  youtube.liveChatBans.insert(
+    {
+      auth,
+      part: 'snippet',
+      resource: {
+        snippet: {
+          liveChatId,
+          type: 'permanent',
           banDurationSeconds: 30,
           bannedUserDetails: {
             channelId
