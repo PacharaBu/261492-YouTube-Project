@@ -104,6 +104,7 @@ const checkTokens = async () => {
   }
 };
 let b = []; //store all live comment
+var IDandAllAttempt = [];
 const respond = newMessages => {
   let a = []; //store only new comment  
   newMessages.forEach(message => {
@@ -111,10 +112,29 @@ const respond = newMessages => {
     console.log(messageText);
     const author = message.authorDetails.displayName;
     const authorID = message.authorDetails.channelId;
+    const checkattempt = require('../spellcorrector/usertest.json');
+    var IDandUser = [];
+    var i ;
+    for(i = 0 ; i < checkattempt.length ; i++){
+        IDandUser.push({"userID": checkattempt[i].userID, "attempt" : parseInt(checkattempt[i].attempt)})
+    }
+    //console.log(IDandUser);
+    IDandUser.forEach(function(item){
+        var j = IDandAllAttempt.findIndex(x => x.userID == item.userID);
+        if(j <= -1){
+            IDandAllAttempt.push({"userID": item.userID, "attempt" : item.attempt});
+        }else IDandAllAttempt[j].attempt = IDandAllAttempt[j].attempt + item.attempt;
+
+        if(IDandAllAttempt[j].attempt == 2){
+          youtubeService.banUser(JSON.stringify(IDandAllAttempt[j].userID));
+          IDandAllAttempt[j].attempt = IDandAllAttempt[j].attempt + 1;
+        }
+    });
+    console.log(IDandAllAttempt);
     if(messageText.includes('fcuk')){
       //const response = `Not good ${author}!`;
       //youtubeService.insertMessage(response);
-      youtubeService.banUser(authorID);
+      
       //youtubeService.banUser(response);
     }
     if(!a.length){
@@ -127,6 +147,7 @@ const respond = newMessages => {
   console.log(a);
   save('./all_message.json', JSON.stringify(b));
 };
+
 const getChatMessages = async () => {
   const response = await youtube.liveChatMessages.list({
     auth,
@@ -169,15 +190,6 @@ youtubeService.insertMessage = messageText => {
     () => {}
   );
 };
-
-/*youtubeService.deleteMessage = () => {
-  youtube.liveChatMessages.delete(
-    {
-     id
-    },
-    () => {}
-  );
-};*/
 
 youtubeService.banUser = channelId => {
   youtube.liveChatBans.insert(

@@ -1,14 +1,12 @@
 const { Console } = require('console');
 const fs = require('fs');
+const userdata = require('../YouTubeAPI/all_message.json');
 
 const Dig = fs.readFileSync('Dig.txt', 'utf-8');
+const bdk = fs.readFileSync('bdk.txt', 'utf-8'); 
+const BDK = bdk.split("\n");
 
-const bdk = fs.readFile('bdk.txt', 'utf-8', (err, data) => { 
-    if (err) throw err; 
-    //console.log(data);
-})
-
-
+// Norvig Spellchecker Part
 var speller = {};
 speller.train = function (text) {
   var m;
@@ -66,6 +64,50 @@ speller.edits = function (word) {
   return results;
 };
 
-//console.log(Dig);
+// train Data from Dig.txt
 speller.train(Dig);
-console.log(speller.correct("dcik"));
+
+//push wordlist in text , tokenize and clean it
+var k;
+const wordlist = [];
+for(k = 0 ; k < userdata.length ; k++){
+  wordlist[k] = userdata[k].message.toLowerCase();
+  wordlist[k] =  wordlist[k].replace("0", "o");
+  wordlist[k] =  wordlist[k].replace("1", "i");
+  wordlist[k] =  wordlist[k].replace("3", "e");
+  wordlist[k] =  wordlist[k].replace("4", "a");
+  wordlist[k] =  wordlist[k].replace("5", "s");
+  wordlist[k] =  wordlist[k].replace("7", "t");
+  wordlist[k] =  wordlist[k].replace("+", "t");
+  wordlist[k] =  wordlist[k].replace("!", "t");
+  wordlist[k] =  wordlist[k].replace("_", " ");
+  wordlist[k] =  wordlist[k].replace("-", " ");
+  wordlist[k] =  wordlist[k].replace("'", " ");
+}
+
+// store reference list from file bdk.txt
+var j;
+const reflist = [];
+for(j = 0 ; j < BDK.length ; j++){
+  BDK[j] = BDK[j].replace("\r","");
+  reflist.push(BDK[j]);
+}
+
+//check if word after correction in reflist : plus attempt to user
+var i ;
+var ii;
+var list_sentence = [];
+for(i = 0 ; i < wordlist.length ; i++){
+  list_sentence = wordlist[i].split(" ");
+  for(ii = 0 ; ii < list_sentence.length ; ii++){
+      console.log(speller.correct(list_sentence[ii]));
+      if(reflist.includes(speller.correct(list_sentence[ii]))){
+        userdata[i].attempt = 1;
+      }
+  }
+} 
+//console.log(userdata);
+//save file 
+fs.writeFileSync('usertest.json',JSON.stringify(userdata));
+
+module.exports = speller;
