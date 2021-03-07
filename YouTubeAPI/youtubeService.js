@@ -5,10 +5,15 @@ const { google } = require('googleapis');
 const util = require('util');
 const fs = require('fs');
 const { type } = require('os');
+const spellcorrector = require('../spellcorrector/spellchecker'); // use module from spellchecker
+const TrainDataFile = fs.readFileSync('Dig.txt', 'utf-8'); // train data file 
+const userdata = require('./all_message.json');
+const countdata = require('./usertest.json');
+const reflist = require('./reflist.json');
 
 let liveChatId; // Where we'll store the id of our liveChat
 let nextPage; // How we'll keep track of pagination for chat messages
-const intervalTime = 5000; // Miliseconds between requests to check chat messages
+const intervalTime = 3000; // Miliseconds between requests to check chat messages
 let interval; // variable to store and control the interval that will check messages
 let chatMessages = []; // where we'll store all messages
 
@@ -42,7 +47,6 @@ const scope = [
 const auth = new OAuth2(clientId, clientSecret, redirectURI);
 
 const youtubeService = {};
-
 youtubeService.getCode = response => {
   const authUrl = auth.generateAuthUrl({
     access_type: 'offline',
@@ -50,6 +54,9 @@ youtubeService.getCode = response => {
   });
   response.redirect(authUrl);
 };
+
+//starting train data for spellcorrector
+spellcorrector.speller.train(TrainDataFile);
 
 // Request access from tokens using code from login
 youtubeService.getTokensWithCode = async code => {
@@ -103,55 +110,75 @@ const checkTokens = async () => {
     console.log('no tokens set');
   }
 };
+
 let b = []; //store all live comment
-var IDandAllAttempt = [];
+let IDandAllAttempt = [];
 const respond = newMessages => {
   let a = []; //store only new comment  
   newMessages.forEach(message => {
     const messageText = message.snippet.displayMessage.toLowerCase();
-    console.log(messageText);
+    //console.log(spellcorrector.speller.correct(messageText));
+    //const oneword = spellcorrector.speller.correct(messageText);
     const author = message.authorDetails.displayName;
     const authorID = message.authorDetails.channelId;
-    const checkattempt = require('../spellcorrector/usertest.json');
-    var IDandUser = [];
-    var i ;
-    for(i = 0 ; i < checkattempt.length ; i++){
-        IDandUser.push({"userID": checkattempt[i].userID, "attempt" : parseInt(checkattempt[i].attempt)})
-    }
-    //console.log(IDandUser);
-    IDandUser.forEach(function(item){
-        var j = IDandAllAttempt.findIndex(x => x.userID == item.userID);
-        if(j <= -1){
-            IDandAllAttempt.push({"userID": item.userID, "attempt" : item.attempt});
-        }else IDandAllAttempt[j].attempt = IDandAllAttempt[j].attempt + item.attempt;
-
-        if(IDandAllAttempt[j].attempt == 2){
-          youtubeService.banUser(JSON.stringify(IDandAllAttempt[j].userID));
-          IDandAllAttempt[j].attempt = IDandAllAttempt[j].attempt + 1;
-        }
-    });
-    console.log(IDandAllAttempt);
-    if(messageText.includes('fcuk')){
-      //const response = `Not good ${author}!`;
-      //youtubeService.insertMessage(response);
-      
-      //youtubeService.banUser(response);
-    }
-    if(!a.length){
+    const messageID = message.id;
+    spellcorrector.speller.cleantextonlyonewords(messageText);
+    if(reflist.includes(messageText)){      
+      a.push({"user": author, "userID": authorID, "message": messageText, "attempt": "1"});
+      youtubeService.deleteMessage(messageID);
+    }else a.push({"user": author, "userID": authorID, "message": messageText, "attempt": "0"});
+    /*if(!a.length){
     a.push({"user": author, "userID": authorID, "message": messageText, "attempt": "0"});
     save('./message.json', JSON.stringify(a));
-    }
-    console.log(JSON.stringify(messageText));
-    b.push({"user": author, "userID": authorID, "message": messageText, "attempt": "0"});
+    }*/
+    //console.log(JSON.stringify(messageText));
   });
-  console.log(a);
+  a.forEach(item => {
+    let j = IDandAllAttempt.findIndex(x => x.userID == item.userID);
+      if(j <= -1){
+          IDandAllAttempt.push({"userID": item.userID, "attempt" : item.attempt});
+      }else IDandAllAttempt[j].attempt = IDandAllAttempt[j].attempt + "1";
+      
+      if(IDandAllAttempt[j].attempt == "011"){
+        youtubeService.banUser(IDandAllAttempt[j].userID);
+        IDandAllAttempt[j].attempt = IDandAllAttempt[j] + "1";
+      }
+      
+      if(IDandAllAttempt[j].attempt == "011111"){
+        youtubeService.banPermanentUser(IDandAllAttempt[j].userID);
+      }
+  });
+  console.log(IDandAllAttempt);
+  //console.log(a);
   save('./all_message.json', JSON.stringify(b));
+  
+  // count attempt from spellchecker.js --------------------------------------------//
+  /*let wordlist = [];
+  let list_sentence = [];
+  spellcorrector.cleantext(userdata,wordlist);
+  spellcorrector.countattempt(list_sentence,wordlist)
+  console.log(wordlist);
+  let IDandAllAttempt = [];
+  countdata.forEach(function(item){
+      let j = IDandAllAttempt.findIndex(x => x.userID == item.userID);
+      if(j <= -1){
+          IDandAllAttempt.push({"userID": item.userID, "attempt" : item.attempt});
+      }else IDandAllAttempt[j].attempt = IDandAllAttempt[j].attempt + item.attempt;
+
+      /*if(IDandAllAttempt[j].attempt == 2){
+        youtubeService.banUser(IDandAllAttempt[j].userID);
+        IDandAllAttempt[j].attempt = IDandAllAttempt[j].attempt + 1 ;
+      }
+  });
+  fs.writeFileSync('./attempttest.json', JSON.stringify(IDandAllAttempt));
+  console.log("success to count");*/
 };
 
+//--------------------------------------------------------------------------------//
 const getChatMessages = async () => {
   const response = await youtube.liveChatMessages.list({
     auth,
-    part: 'snippet,authorDetails',
+    part: 'id,snippet,authorDetails',
     liveChatId,
     pageToken: nextPage
   });
@@ -191,6 +218,17 @@ youtubeService.insertMessage = messageText => {
   );
 };
 
+youtubeService.deleteMessage = id => {
+  youtube.liveChatMessages.delete(
+    {
+      auth,
+      part: 'id',
+      id,
+    },
+    () => {}
+  );
+};
+
 youtubeService.banUser = channelId => {
   youtube.liveChatBans.insert(
     {
@@ -220,7 +258,6 @@ youtubeService.banPermanentUser = channelId => {
         snippet: {
           liveChatId,
           type: 'permanent',
-          banDurationSeconds: 30,
           bannedUserDetails: {
             channelId
           }
