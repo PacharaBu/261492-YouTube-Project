@@ -1,17 +1,13 @@
 const { Console } = require('console');
 const fs = require('fs');
-/*const userdata = require('../YouTubeAPI/all_message.json');
+const { digitalassetlinks } = require('googleapis/build/src/apis/digitalassetlinks');
 const reflist = require('./reflist.json');
-const Dig = fs.readFileSync('Dig.txt', 'utf-8');*/
-
-// Norvig Spellchecker Part
 var speller = {};
 speller.train = function (text) {
   var m;
   re = RegExp('[a-z]+', 'g');
   text = text.toLowerCase();
   while ((m = re.exec(text)) !== null) {
-    //console.log(m[0]);
     speller.nWords[m[0]] = speller.nWords.hasOwnProperty(m[0]) ? speller.nWords[m[0]] + 1 : 1;
   }
 };
@@ -79,7 +75,6 @@ speller.edits = function (word) {
     wordlist[k] =  wordlist[k].replace(/-/g, " ");
     wordlist[k] =  wordlist[k].replace(/'/g, " ");
   }
-  //console.log(wordlist);
 }
 
   //clean text only one words
@@ -95,19 +90,16 @@ speller.edits = function (word) {
     word = word.replace(/_/g, " ");
     word = word.replace(/-/g, " ");
     word = word.replace(/'/g, " ");
-    word = speller.correct(word);
     console.log(word);
   }
 
 //check if word after correction in reflist : plus attempt to 
-//var list_sentence = [];
 speller.countattempt = function(list_sentence,wordlist){
   var i ;
   var ii;
   for(i = 0 ; i < wordlist.length ; i++){
     list_sentence = wordlist[i].split(" ");
     for(ii = 0 ; ii < list_sentence.length ; ii++){
-        //console.log(speller.correct(list_sentence[ii]));
         if(reflist.includes(speller.correct(list_sentence[ii]))){
           userdata[i].attempt = 1;
         }else userdata[i].attempt = 0;
@@ -115,29 +107,70 @@ speller.countattempt = function(list_sentence,wordlist){
     }
     console.log(userdata[i]);
   } 
-  //console.log(userdata);
-  //save file 
-  fs.writeFileSync('usertest.json',JSON.stringify(userdata));
 }
 
-//command 
-/*speller.train(Dig);
-const wordlist = [];
-const list_sentence = [];*/
-//cleantext(userdata,wordlist);
-/*countattempt(list_sentence,wordlist)
+speller.countattempttest = function(wordlist,detected){
+  var list_sentence =[];
+  var ii;
+    list_sentence = wordlist.split(" ");
+    for(ii = 0 ; ii < list_sentence.length ; ii++){
+        if(reflist.includes(speller.correct(list_sentence[ii]))){
+          detected.iscaught = true;
+          console.log(speller.correct(list_sentence[ii]))
+          break;
+        }
+    }
+    console.log(detected);
+}
 
-var IDandAllAttempt = [];
-userdata.forEach(function(item){
-    var j = IDandAllAttempt.findIndex(x => x.userID == item.userID);
-    if(j <= -1){
-        IDandAllAttempt.push({"userID": item.userID, "attempt" : item.attempt});
-    }else IDandAllAttempt[j].attempt = IDandAllAttempt[j].attempt + item.attempt;
-});
-console.log(IDandAllAttempt);
 
-if(reflist.includes("bitch")){
-  console.log("true");
-}else console.log("false")*/
+speller.countattempttest2 = function(wordlist){
+  var list_sentence =[];
+  var ii;
+    list_sentence = wordlist.split(" ");
+    for(ii = 0 ; ii < list_sentence.length ; ii++){
+        if(reflist.includes(speller.correct(list_sentence[ii]))){
+          console.log("1");
+          console.log(speller.correct(list_sentence[ii]))
+          break;
+        }
+    }
+}
+
+speller.makefuzzy = function (userdata,wordlist){
+  var k;
+  for(k = 0 ; k < userdata.length ; k++){
+    wordlist[k] = userdata[k].message.toLowerCase();
+    wordlist[k] =  wordlist[k].replace(/o/g, "0");
+    wordlist[k] =  wordlist[k].replace(/i/g, "1");
+    wordlist[k] =  wordlist[k].replace(/e/g, "3");
+    wordlist[k] =  wordlist[k].replace(/a/g, "4");
+    wordlist[k] =  wordlist[k].replace(/s/g, "5");
+    wordlist[k] =  wordlist[k].replace(/t/g, "7");
+    wordlist[k] =  wordlist[k].replace(/i/g, "!");
+    wordlist[k] =  wordlist[k].replace(/_/g, " ");
+    wordlist[k] =  wordlist[k].replace(/-/g, " ");
+    wordlist[k] =  wordlist[k].replace(/'/g, " ");
+  }
+}
+
+speller.countattemptresult = function(list_sentence,wordlist){
+  var i ;
+  var ii;
+  var countresult = 0;
+  for(i = 0 ; i < wordlist.length ; i++){
+    list_sentence = wordlist[i].split(" ");
+    for(ii = 0 ; ii < list_sentence.length ; ii++){
+        if(reflist.includes(speller.correct(list_sentence[ii]))){
+          countresult++;
+          console.log({"detected number": i, "word_detect": speller.correct(list_sentence[ii])});
+          break;
+        }else countresult = countresult;
+    }
+
+  } 
+console.log(countresult);
+}
+
 
 module.exports =  {speller};

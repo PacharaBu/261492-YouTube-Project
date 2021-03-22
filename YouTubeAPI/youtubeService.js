@@ -7,9 +7,6 @@ const fs = require('fs');
 const { type } = require('os');
 const spellcorrector = require('../spellcorrector/spellchecker'); // use module from spellchecker
 const TrainDataFile = fs.readFileSync('Dig.txt', 'utf-8'); // train data file 
-const userdata = require('./all_message.json');
-const countdata = require('./usertest.json');
-const reflist = require('./reflist.json');
 
 let liveChatId; // Where we'll store the id of our liveChat
 let nextPage; // How we'll keep track of pagination for chat messages
@@ -83,8 +80,7 @@ youtubeService.findActiveChat = async () => {
   if (latestChat && latestChat.snippet.liveChatId) {
     liveChatId = latestChat.snippet.liveChatId;
     console.log("Chat ID Found:", liveChatId);
-    save('./text.json', JSON.stringify(liveChatId));
-    //save('./text.json',JSON.stringify(latestChat));
+    //save('./text.json', JSON.stringify(liveChatId));
   } else {
     console.log("No Active Chat Found");
   }
@@ -111,27 +107,23 @@ const checkTokens = async () => {
   }
 };
 
-let b = []; //store all live comment
 let IDandAllAttempt = [];
 const respond = newMessages => {
-  let a = []; //store only new comment  
+  let a = []; //store only new comment
+  let detected = {"iscaught": false};  
   newMessages.forEach(message => {
     const messageText = message.snippet.displayMessage.toLowerCase();
-    //console.log(spellcorrector.speller.correct(messageText));
-    //const oneword = spellcorrector.speller.correct(messageText);
     const author = message.authorDetails.displayName;
     const authorID = message.authorDetails.channelId;
     const messageID = message.id;
     spellcorrector.speller.cleantextonlyonewords(messageText);
-    if(reflist.includes(messageText)){      
+    spellcorrector.speller.countattempttest(messageText,detected);
+    console.log(detected);
+    if(detected.iscaught){      
       a.push({"user": author, "userID": authorID, "message": messageText, "attempt": "1"});
+      console.log("detected");
       youtubeService.deleteMessage(messageID);
-    }else a.push({"user": author, "userID": authorID, "message": messageText, "attempt": "0"});
-    /*if(!a.length){
-    a.push({"user": author, "userID": authorID, "message": messageText, "attempt": "0"});
-    save('./message.json', JSON.stringify(a));
-    }*/
-    //console.log(JSON.stringify(messageText));
+    }else console.log("not detected");
   });
   a.forEach(item => {
     let j = IDandAllAttempt.findIndex(x => x.userID == item.userID);
@@ -139,39 +131,16 @@ const respond = newMessages => {
           IDandAllAttempt.push({"userID": item.userID, "attempt" : item.attempt});
       }else IDandAllAttempt[j].attempt = IDandAllAttempt[j].attempt + "1";
       
-      if(IDandAllAttempt[j].attempt == "011"){
+      if(IDandAllAttempt[j].attempt == "11"){
         youtubeService.banUser(IDandAllAttempt[j].userID);
         IDandAllAttempt[j].attempt = IDandAllAttempt[j] + "1";
       }
       
-      if(IDandAllAttempt[j].attempt == "011111"){
+      if(IDandAllAttempt[j].attempt == "[object Object]1111"){
         youtubeService.banPermanentUser(IDandAllAttempt[j].userID);
       }
   });
   console.log(IDandAllAttempt);
-  //console.log(a);
-  save('./all_message.json', JSON.stringify(b));
-  
-  // count attempt from spellchecker.js --------------------------------------------//
-  /*let wordlist = [];
-  let list_sentence = [];
-  spellcorrector.cleantext(userdata,wordlist);
-  spellcorrector.countattempt(list_sentence,wordlist)
-  console.log(wordlist);
-  let IDandAllAttempt = [];
-  countdata.forEach(function(item){
-      let j = IDandAllAttempt.findIndex(x => x.userID == item.userID);
-      if(j <= -1){
-          IDandAllAttempt.push({"userID": item.userID, "attempt" : item.attempt});
-      }else IDandAllAttempt[j].attempt = IDandAllAttempt[j].attempt + item.attempt;
-
-      /*if(IDandAllAttempt[j].attempt == 2){
-        youtubeService.banUser(IDandAllAttempt[j].userID);
-        IDandAllAttempt[j].attempt = IDandAllAttempt[j].attempt + 1 ;
-      }
-  });
-  fs.writeFileSync('./attempttest.json', JSON.stringify(IDandAllAttempt));
-  console.log("success to count");*/
 };
 
 //--------------------------------------------------------------------------------//
@@ -188,7 +157,6 @@ const getChatMessages = async () => {
   nextPage = data.nextPageToken;
   console.log('Total Chat Messages:', chatMessages.length);
   respond(newMessages);
-  //console.log(newMessages);
 };
 
 youtubeService.startTrackingChat = () => {
