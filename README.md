@@ -6,7 +6,7 @@
 *NodeJS : If you don't have this program **[install here](https://nodejs.org/en/download/)**
 *Visual Studio Code (optimal) **[install here](https://code.visualstudio.com/download)**
 
-**NodeJS Installation**
+**NodeJS and npm package Installation**
 *after install nodeJS, open your command line and type command for test node.
 ```
 node -v
@@ -15,6 +15,8 @@ node -v
 ```
 npm -v
 ```
+
+**Start program on local host server**
 *after this step, go to you directory where this program is placed.
 * you can get path by copy as text
 ![image](https://drive.google.com/uc?export=view&id=10gbh7mk1hRFldT9djJHCpmf4uhddzRZt)
@@ -29,4 +31,10 @@ npm start
 *after start open browser and goto localhost:3000
 ![image](https://drive.google.com/uc?export=view&id=11fgWVFiDJWJeIhwYhCTQaddCwRa2Jkpa)
 
-
+**How to use program**
+*open live
+![image](https://drive.google.com/uc?export=view&id=1EVA3qyiYDnNv4xP1LOcAzoHlwvCGYbWO)
+*click "Authorize" and select your account for give permisson to program
+![image](https://drive.google.com/uc?export=view&id=1wMiE0ukDMYeovg6O1lJ6WEw-u5rlfnp3)
+*click "Get Active Chat" and "Start Tracking Chat" button
+*if you want to stop program click "Stop Tracking Chat" button and close program
