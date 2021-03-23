@@ -18,3 +18,11 @@ npm -v
 *after this step, go to you directory where this program is placed.
 * you can get path by copy as text
 ![image](https://drive.google.com/uc?export=view&id=10gbh7mk1hRFldT9djJHCpmf4uhddzRZt)
+* go to folder YouTubeAPI by using command 
+```
+cd YouTubeAPI
+```
+* start program by using command
+```
+npm start
+```
