@@ -5,5 +5,8 @@
 
 *NodeJS : If you don't have this program **[install here](https://nodejs.org/en/download/)**
 
-#Installation
-* 
+**NodeJS Installation**
+*after install nodeJS, open your command line and type command.
+```
+node -v
+```
