@@ -37,5 +37,4 @@ npm start
 * click "Authorize" and select your account for give permisson to program
 ![image](https://drive.google.com/uc?export=view&id=1wMiE0ukDMYeovg6O1lJ6WEw-u5rlfnp3)
 * click "Get Active Chat" and "Start Tracking Chat" button
-* 
 * if you want to stop program click "Stop Tracking Chat" button and close program
