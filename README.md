@@ -17,4 +17,4 @@ npm -v
 ```
 *after this step, go to you directory where this program is placed.
 * you can get path by copy as text
-[![image](https://drive.google.com/file/d/10gbh7mk1hRFldT9djJHCpmf4uhddzRZt/view?usp=sharing)]
+<img src = "https://drive.google.com/file/d/10gbh7mk1hRFldT9djJHCpmf4uhddzRZt/view?usp=sharing">
