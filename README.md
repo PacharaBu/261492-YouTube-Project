@@ -4,7 +4,7 @@
 **Require Program**
 
 * NodeJS : If you don't have this program **[install here](https://nodejs.org/en/download/)**
-* Visual Studio Code (optimal) **[install here](https://code.visualstudio.com/download)**
+* Visual Studio Code (optional) **[install here](https://code.visualstudio.com/download)**
 
 **NodeJS and npm package Installation**
 * after install nodeJS, open your command line and type command for test node.
