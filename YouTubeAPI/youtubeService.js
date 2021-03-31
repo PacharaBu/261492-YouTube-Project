@@ -5,8 +5,8 @@ const { google } = require('googleapis');
 const util = require('util');
 const fs = require('fs');
 const { type } = require('os');
-const spellcorrector = require('../spellcorrector/spellchecker'); // use module from spellchecker
-const TrainDataFile = fs.readFileSync('Dig.txt', 'utf-8'); // train data file 
+const spellcorrector = require('./spellchecker'); // use module from spellchecker
+const TrainDataFile = fs.readFileSync('../data/Dig.txt', 'utf-8'); // train data file 
 
 let liveChatId; // Where we'll store the id of our liveChat
 let nextPage; // How we'll keep track of pagination for chat messages

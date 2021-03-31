@@ -1,7 +1,7 @@
 const { Console } = require('console');
 const fs = require('fs');
 const { digitalassetlinks } = require('googleapis/build/src/apis/digitalassetlinks');
-const reflist = require('./reflist.json');
+const reflist = require('../data/reflist.json');
 var speller = {};
 speller.train = function (text) {
   var m;
