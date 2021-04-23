@@ -35,6 +35,6 @@ npm start
 * open live
 ![image](https://drive.google.com/uc?export=view&id=16kX0xB1QoLwG_CFXpwyf6YPHbpY763xN)
 * click "Authorize" and select your account for give permisson to program
-![image](https://drive.google.com/uc?export=view&id=1wMiE0ukDMYeovg6O1lJ6WEw-u5rlfnp3)
+![image](https://drive.google.com/uc?export=view&id=12_Y5iAVfST_dr_7aZNFFxiwRHYjxx5Jb)
 * click "Get Active Chat" and "Start Tracking Chat" button
 * if you want to stop program click "Stop Tracking Chat" button and close program
